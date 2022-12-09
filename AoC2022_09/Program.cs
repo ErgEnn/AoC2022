@@ -39,13 +39,11 @@ string Solve1(string input)
     t_visited.Add((x, y));
     foreach (var line in input.Lines())
     {
-        var parts = line.Split(' ') switch
+        var (direction, amount) = line.Deconstruct<string, int>();
+
+        for (int i = 0; i < amount; i++)
         {
-            [var direction, var amount] => (direction, amount:int.Parse(amount))
-        };
-        for (int i = 0; i < parts.amount; i++)
-        {
-            switch (parts.direction)
+            switch (direction)
             {
                 case "R":
                     x++;
@@ -122,7 +120,6 @@ string Solve1(string input)
             }
 
             t_visited.Add((tx, ty));
-            //Console.WriteLine($"({tx},{ty})");
         }
         
     }
@@ -139,13 +136,11 @@ string Solve2(string input)
     t_visited.Add((0, 0));
     foreach (var line in input.Lines())
     {
-        var parts = line.Split(' ') switch
+        var (direction, amount) = line.Deconstruct<string, int>();
+
+        for (int i = 0; i < amount; i++)
         {
-            [var direction, var amount] => (direction, amount: int.Parse(amount))
-        };
-        for (int i = 0; i < parts.amount; i++)
-        {
-            switch (parts.direction)
+            switch (direction)
             {
                 case "R":
                     xh++;
@@ -237,7 +232,6 @@ string Solve2(string input)
             }
 
             t_visited.Add((knots[8].x, knots[8].y));
-            //Console.WriteLine($"({tx},{ty})");
         }
 
     }
