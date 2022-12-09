@@ -16,4 +16,10 @@
     <WarningLevel>7</WarningLevel>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Update="input.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
