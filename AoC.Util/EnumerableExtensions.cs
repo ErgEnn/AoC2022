@@ -32,5 +32,53 @@ namespace AoC.Util
             enumerator.Dispose();
             return result;
         }
+
+        public static (T? i1, T? i2) FirstMultisearch<T>(this IEnumerable<T> values, Predicate<T> p1, Predicate<T> p2) where T : class
+        {
+            var i1 = default(T);
+            var i2 = default(T);
+
+            foreach (var item in values)
+            {
+                if (i1 == default(T) && p1(item))
+                {
+                    i1 = item;
+                    if (i2 != default(T))
+                        break;
+                }
+                if (i2 == default(T) && p2(item))
+                {
+                    i2 = item;
+                    if (i1 != default(T))
+                        break;
+                }
+            }
+
+            return (i1, i2);
+        }
+
+        public static IEnumerable<LinkedListNode<T>> AsNodes<T>(this LinkedList<T> list, bool ignoreLast = false)
+        {
+            for (LinkedListNode<T> node = list.First; node != null; node = node.Next)
+            {
+                if(ignoreLast && node.Next == null)
+                    yield break;
+                yield return node;
+            }
+        }
+
+        public static LinkedList<T> ToLinkedList<T>(this IDictionary<T, T> dict, T start) where T : class
+        {
+            var ll = new LinkedList<T>();
+            ll.AddFirst(start);
+            var current = dict[start];
+            while (current != null)
+            {
+                ll.AddLast(current);
+                current = dict.TryGetValue(current, out var newCurrent) ? newCurrent : null;
+            }
+            return ll;
+        }
+
     }
 }
