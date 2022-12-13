@@ -78,18 +78,22 @@ public class Map<TTile> where TTile : Map<TTile>.Tile
         {
             return Map.At(X, Y-1);
         }
+
         public TTile? Down()
         {
             return Map.At(X, Y+1);
         }
+
         public TTile? Left()
         {
             return Map.At(X-1, Y);
         }
+
         public TTile? Right()
         {
             return Map.At(X+1, Y);
         }
+
         public int DistanceTo(TTile tile)
         {
             return Math.Abs(tile.X - X) + Math.Abs(tile.Y - Y);

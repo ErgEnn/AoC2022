@@ -55,10 +55,17 @@ namespace AoC.Util
             return int.Parse(s);
         }
 
-    }
+        public static IEnumerable<(string, string)> PairsOfLines(this IEnumerable<string> lines)
+        {
+            var enumerator = lines.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                yield return (enumerator.Current, enumerator.MoveNext() ? enumerator.Current : null);
+                enumerator.MoveNext();
+            }
+            enumerator.Dispose();
+        }
 
-    public class Parts
-    {
-        
     }
+    
 }
