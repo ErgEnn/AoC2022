@@ -66,6 +66,11 @@ namespace AoC.Util
             enumerator.Dispose();
         }
 
+        public static bool IsNullOrWhitespace(this string s)
+        {
+            return string.IsNullOrWhiteSpace(s);
+        }
+
     }
     
 }

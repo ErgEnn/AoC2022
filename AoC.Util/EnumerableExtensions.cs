@@ -80,5 +80,24 @@ namespace AoC.Util
             return ll;
         }
 
+        public static IEnumerable<T> Concat<T>(this IEnumerable<T> values, params T[] additionalValues)
+        {
+            foreach (var value in values.Concat(additionalValues.AsEnumerable()))
+            {
+                yield return value;
+            }
+        }
+
+        public static IEnumerable<(int i, T value)> Indexed<T>(this IEnumerable<T> values)
+        {
+            int i = 0;
+            var iter = values.GetEnumerator();
+            while (iter.MoveNext())
+            {
+                yield return (i++, iter.Current);
+            }
+            iter.Dispose();
+        }
+
     }
 }
