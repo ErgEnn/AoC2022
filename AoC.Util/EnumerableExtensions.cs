@@ -99,5 +99,33 @@ namespace AoC.Util
             iter.Dispose();
         }
 
+        public static IEnumerable<int> StepTowards(this int start, int end)
+        {
+            var delta = Math.Abs(start - end);
+            var coefficient = 1;
+            if (start - end > 0)
+            {
+                coefficient = -1;
+            }
+            for (int i = 0; i <= delta; i++)
+            {
+                yield return start + coefficient * i;
+            }
+        }
+
+        public static IEnumerable<(T i1, T i2)> Pairwise<T>(this IEnumerable<T> values)
+        {
+            using var enumerator = values.GetEnumerator();
+            enumerator.MoveNext();
+            while (true)
+            {
+                var i1 = enumerator.Current;
+                if(!enumerator.MoveNext())
+                    yield break;
+                var i2 = enumerator.Current;
+                yield return (i1, i2);
+            }
+        }
+
     }
 }

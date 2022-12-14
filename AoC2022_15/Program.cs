@@ -1,4 +1,4 @@
-﻿var exampleInput = 
+﻿var exampleInput =
     """
 
     """;
@@ -17,6 +17,3 @@ string Solve2(string input)
 {
     return null;
 }
-
-
-
