@@ -1,4 +1,6 @@
 ﻿
+using System.Text.RegularExpressions;
+
 namespace AoC.Util
 {
     public static class StringExtensions
@@ -29,6 +31,26 @@ namespace AoC.Util
             {
                 [var s1, var s2, var s3, var s4] => (Convert<T1>(s1), Convert<T2>(s2), Convert<T3>(s3), Convert<T4>(s4)),
             };
+        }
+
+        private static readonly Dictionary<string, Regex> _regexCache = new();
+        public static (T1 s1, T2 s2, T3 s3, T4 s4) Deconstruct<T1, T2, T3, T4>(this string s, FormattableString pattern)
+        {
+            if (!_regexCache.ContainsKey(pattern.Format))
+            {
+                var regexPattern = pattern.Format;
+                for (int i = 0; i < pattern.ArgumentCount; i++)
+                {
+                    regexPattern = regexPattern.Replace("{" + i + "}", "(.+)");
+                }
+                _regexCache.Add(pattern.Format, new Regex(regexPattern));
+            }
+
+            var matches = _regexCache[pattern.Format].Match(s);
+
+            return (
+                Convert<T1>(matches.Groups[1].Value), Convert<T2>(matches.Groups[2].Value),
+                Convert<T3>(matches.Groups[3].Value), Convert<T4>(matches.Groups[4].Value));
         }
         public static (T1 s1, T2 s2, T3 s3, T4 s4, T5 s5) Deconstruct<T1, T2, T3, T4, T5>(this string s, char separator = ' ')
         {
