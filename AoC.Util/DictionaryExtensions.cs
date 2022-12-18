@@ -15,5 +15,13 @@ namespace AoC.Util
             else
                 dict.Add(key, value);
         }
+
+        public static IEnumerable<TVal> ForKeys<TKey, TVal>(this IDictionary<TKey, TVal> dict, params TKey[] keys)
+        {
+            foreach (var key in keys)
+            {
+                yield return dict[key];
+            }
+        }
     }
 }

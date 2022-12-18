@@ -11,6 +11,21 @@ namespace AoC.Util
             return s.Split(Environment.NewLine);
         }
 
+        private static readonly Dictionary<string, Regex> _regexCache = new();
+
+        private static void InitializeRegex(FormattableString pattern)
+        {
+            if (!_regexCache.ContainsKey(pattern.Format))
+            {
+                var regexPattern = pattern.Format;
+                for (int i = 0; i < pattern.ArgumentCount; i++)
+                {
+                    regexPattern = regexPattern.Replace("{" + i + "}", "(.+)");
+                }
+                _regexCache.Add(pattern.Format, new Regex(regexPattern));
+            }
+        }
+
         public static (T1 s1, T2 s2) Deconstruct<T1, T2>(this string s, char separator = ' ')
         {
             return s.Split(separator) switch
@@ -25,6 +40,19 @@ namespace AoC.Util
                 [var s1, var s2, var s3] => (Convert<T1>(s1), Convert<T2>(s2), Convert<T3>(s3)),
             };
         }
+
+        public static (T1 s1, T2 s2, T3 s3) Deconstruct<T1, T2, T3>(this string s, FormattableString pattern)
+        {
+            InitializeRegex(pattern);
+
+            var matches = _regexCache[pattern.Format].Match(s);
+
+            return (
+                Convert<T1>(matches.Groups[1].Value, pattern.GetArguments()[0]),
+                Convert<T2>(matches.Groups[2].Value, pattern.GetArguments()[1]),
+                Convert<T3>(matches.Groups[3].Value, pattern.GetArguments()[2]));
+        }
+
         public static (T1 s1, T2 s2, T3 s3, T4 s4) Deconstruct<T1, T2, T3, T4>(this string s, char separator = ' ')
         {
             return s.Split(separator) switch
@@ -33,18 +61,10 @@ namespace AoC.Util
             };
         }
 
-        private static readonly Dictionary<string, Regex> _regexCache = new();
+        
         public static (T1 s1, T2 s2, T3 s3, T4 s4) Deconstruct<T1, T2, T3, T4>(this string s, FormattableString pattern)
         {
-            if (!_regexCache.ContainsKey(pattern.Format))
-            {
-                var regexPattern = pattern.Format;
-                for (int i = 0; i < pattern.ArgumentCount; i++)
-                {
-                    regexPattern = regexPattern.Replace("{" + i + "}", "(.+)");
-                }
-                _regexCache.Add(pattern.Format, new Regex(regexPattern));
-            }
+            InitializeRegex(pattern);
 
             var matches = _regexCache[pattern.Format].Match(s);
 
@@ -67,8 +87,10 @@ namespace AoC.Util
             };
         }
 
-        private static T Convert<T>(this string s)
+        private static T Convert<T>(this string s, object? arg = null)
         {
+            if(typeof(T) == typeof(string[]) && arg is string separator)
+                return (T)System.Convert.ChangeType(s.Split(separator), typeof(T));
             return (T) System.Convert.ChangeType(s, typeof(T));
         }
 
