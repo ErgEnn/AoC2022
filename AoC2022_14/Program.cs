@@ -19,7 +19,7 @@ HashSet<(int x, int y)> ParseRocks(string input)
     {
         var vertices = line
             .Split(" -> ")
-            .Select(s => s.Deconstruct<int, int>(','));
+            .Select(s => s.Deconstruct<int, int>(","));
         foreach (var (startVertex, endVertex) in vertices.Pairwise())
         {
             foreach (var x in startVertex.s1.StepTowards(endVertex.s1))

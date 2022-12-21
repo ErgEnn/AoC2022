@@ -12,5 +12,10 @@ namespace AoC.Util
         {
             return val >= min && val <= max;
         }
+
+        public static string ToFormattedString(this int[] values)
+        {
+            return string.Join(",", values);
+        }
     }
 }

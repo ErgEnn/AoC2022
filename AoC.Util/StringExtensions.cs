@@ -26,7 +26,7 @@ namespace AoC.Util
             }
         }
 
-        public static (T1 s1, T2 s2) Deconstruct<T1, T2>(this string s, char separator = ' ')
+        public static (T1 s1, T2 s2) Deconstruct<T1, T2>(this string s, string separator = " ")
         {
             return s.Split(separator) switch
             {
@@ -85,6 +85,22 @@ namespace AoC.Util
             {
                 [var s1, var s2, var s3, var s4, var s5, var s6] => (Convert<T1>(s1), Convert<T2>(s2), Convert<T3>(s3), Convert<T4>(s4), Convert<T5>(s5), Convert<T6>(s6)),
             };
+        }
+
+
+        public static (T1 s1, T2 s2, T3 s3,T4 s4,T5 s5,T6 s6) Deconstruct<T1, T2, T3, T4, T5, T6>(this string s, FormattableString pattern)
+        {
+            InitializeRegex(pattern);
+
+            var matches = _regexCache[pattern.Format].Match(s);
+
+            return (
+                Convert<T1>(matches.Groups[1].Value, pattern.GetArguments()[0]),
+                Convert<T2>(matches.Groups[2].Value, pattern.GetArguments()[1]),
+                Convert<T3>(matches.Groups[3].Value, pattern.GetArguments()[2]),
+                Convert<T4>(matches.Groups[4].Value, pattern.GetArguments()[2]),
+                Convert<T5>(matches.Groups[5].Value, pattern.GetArguments()[2]),
+                Convert<T6>(matches.Groups[6].Value, pattern.GetArguments()[2]));
         }
 
         private static T Convert<T>(this string s, object? arg = null)
