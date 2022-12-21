@@ -23,7 +23,7 @@ var realInput = File.ReadAllText("input.txt");
 
 
 Console.WriteLine($"Answer 1: {Solve1(realInput)}");
-Console.WriteLine($"Answer 2: {Solve2(exampleInput)}");
+Console.WriteLine($"Answer 2: {Solve2(realInput)}");
 
 string Solve1(string input)
 {
@@ -43,82 +43,129 @@ long GetMonkeyVal(IDictionary<string,string> monkeys, string monkey)
     var valOrOp = monkeys[monkey];
     if (valOrOp.Length == 11)
     {
+        long val = 0;
         switch (valOrOp[5])
         {
-                case '+':
-                    return valOrOp.Split(" + ") switch
-                    {
-                        [string mon1, string mon2] => GetMonkeyVal(monkeys, mon1) + GetMonkeyVal(monkeys, mon2)
-                    };
-                case '-':
-                return valOrOp.Split(" - ") switch
+            case '+':
+                val= valOrOp.Split(" + ") switch
+                {
+                    [string mon1, string mon2] => GetMonkeyVal(monkeys, mon1) + GetMonkeyVal(monkeys, mon2)
+                };
+                break;
+            case '-':
+                val = valOrOp.Split(" - ") switch
                 {
                     [string mon1, string mon2] => GetMonkeyVal(monkeys, mon1) - GetMonkeyVal(monkeys, mon2)
                 };
+                break;
             case '*':
-                return valOrOp.Split(" * ") switch
+                val = valOrOp.Split(" * ") switch
                 {
                     [string mon1, string mon2] => GetMonkeyVal(monkeys, mon1) * GetMonkeyVal(monkeys, mon2)
                 };
+                break;
             case '/':
-                return valOrOp.Split(" / ") switch
+                val = valOrOp.Split(" / ") switch
                 {
                     [string mon1, string mon2] => GetMonkeyVal(monkeys, mon1) / GetMonkeyVal(monkeys, mon2)
                 };
+                break;
         }
+        monkeys[monkey] = val.ToString();
+        return val;
     }
     return long.Parse(valOrOp);
 }
 
-long GetMonkeyValAdv(IDictionary<string,string> monkeys, IDictionary<string,string> reverseMonkeys, string monkey)
+long GetMonkeyValAlt(IDictionary<string,HashSet<string>> monkeys, string monkey, Func<HashSet<string>,string> strategy)
 {
-    var valOrOp = monkeys[monkey];
-    if (monkey == "humn")
-        return GetMonkeyVal(reverseMonkeys, monkey);
+    var ops = monkeys[monkey];
+    var valOrOp = strategy(ops);
+    //Console.WriteLine($"{monkey} = {valOrOp} ;alt = {string.Join(";", ops.Where(s => s!=valOrOp))}");
     if (valOrOp.Length == 11)
     {
-        var oper = valOrOp[5];
-        var (subMonke1, subMonke2) = valOrOp.Deconstruct<string, string>($" {oper} ");
-        switch (oper)
+        long val = 0;
+        switch (valOrOp[5])
         {
             case '+':
-                reverseMonkeys.Add(subMonke1, $"{monkey} - {subMonke2}");
-                reverseMonkeys.Add(subMonke2, $"{monkey} - {subMonke1}");
-                return GetMonkeyValAdv(monkeys, reverseMonkeys, subMonke1) +
-                       GetMonkeyValAdv(monkeys, reverseMonkeys, subMonke2);
+                val= valOrOp.Split(" + ") switch
+                {
+                    [string mon1, string mon2] => GetMonkeyValAlt(monkeys, mon1, set => set.First(s => !s.Contains(monkey))) + GetMonkeyValAlt(monkeys, mon2, set => set.First(s => !s.Contains(monkey)))
+                };
+                break;
             case '-':
-                reverseMonkeys.Add(subMonke1, $"{monkey} + {subMonke2}");
-                reverseMonkeys.Add(subMonke2, $"{subMonke1} - {monkey}");
-                return GetMonkeyValAdv(monkeys, reverseMonkeys, subMonke1) -
-                       GetMonkeyValAdv(monkeys, reverseMonkeys, subMonke2);
+                val = valOrOp.Split(" - ") switch
+                {
+                    [string mon1, string mon2] => GetMonkeyValAlt(monkeys, mon1, set => set.First(s => !s.Contains(monkey))) - GetMonkeyValAlt(monkeys, mon2, set => set.First(s => !s.Contains(monkey)))
+                };
+                break;
             case '*':
-                reverseMonkeys.Add(subMonke1, $"{monkey} / {subMonke2}");
-                reverseMonkeys.Add(subMonke2, $"{monkey} / {subMonke1}");
-                return GetMonkeyValAdv(monkeys, reverseMonkeys, subMonke1) *
-                       GetMonkeyValAdv(monkeys, reverseMonkeys, subMonke2);
+                val = valOrOp.Split(" * ") switch
+                {
+                    [string mon1, string mon2] => GetMonkeyValAlt(monkeys, mon1, set => set.First(s => !s.Contains(monkey))) * GetMonkeyValAlt(monkeys, mon2, set => set.First(s => !s.Contains(monkey)))
+                };
+                break;
             case '/':
-                reverseMonkeys.Add(subMonke1, $"{monkey} * {subMonke2}");
-                reverseMonkeys.Add(subMonke2, $"{monkey} / {subMonke1}");
-                return GetMonkeyValAdv(monkeys, reverseMonkeys, subMonke1) /
-                       GetMonkeyValAdv(monkeys, reverseMonkeys, subMonke2);
+                val = valOrOp.Split(" / ") switch
+                {
+                    [string mon1, string mon2] => GetMonkeyValAlt(monkeys, mon1, set => set.First(s => !s.Contains(monkey))) / GetMonkeyValAlt(monkeys, mon2, set => set.First(s => !s.Contains(monkey)))
+                };
+                break;
         }
+        monkeys[monkey] = new HashSet<string>(){ val.ToString()};
+        return val;
     }
-    reverseMonkeys.Add(monkey,valOrOp);
     return long.Parse(valOrOp);
 }
 
 string Solve2(string input)
 {
     var monkeys = new Dictionary<string, string>();
-    var reverseMonkeys = new Dictionary<string, string>();
+    var reverseMonkeys = new Dictionary<string, HashSet<string>>();
     foreach (var line in input.Lines())
     {
         var (monkey, valOrOp) = line.Deconstruct<string, string>(":");
-        monkeys.Add(monkey, valOrOp.Trim());
+        valOrOp = valOrOp.Trim();
+        monkeys.Add(monkey, valOrOp);
+        if (valOrOp.Length == 11)
+        {
+            var oper = valOrOp[5];
+            var (subMonke1, subMonke2) = valOrOp.Deconstruct<string, string>($" {oper} ");
+            reverseMonkeys.AddToSetUnderKey(monkey, valOrOp);
+            switch (oper)
+            {
+                case '+':
+                    reverseMonkeys.AddToSetUnderKey(subMonke1, $"{monkey} - {subMonke2}");
+                    reverseMonkeys.AddToSetUnderKey(subMonke2, $"{monkey} - {subMonke1}");
+                    break;
+                case '-':
+                    reverseMonkeys.AddToSetUnderKey(subMonke1, $"{monkey} + {subMonke2}");
+                    reverseMonkeys.AddToSetUnderKey(subMonke2, $"{subMonke1} - {monkey}");
+                    break;
+                case '*':
+                    reverseMonkeys.AddToSetUnderKey(subMonke1, $"{monkey} / {subMonke2}");
+                    reverseMonkeys.AddToSetUnderKey(subMonke2, $"{monkey} / {subMonke1}");
+                    break;
+                case '/':
+                    reverseMonkeys.AddToSetUnderKey(subMonke1, $"{monkey} * {subMonke2}");
+                    reverseMonkeys.AddToSetUnderKey(subMonke2, $"{subMonke1} / {monkey}");
+                    break;
+            }
+        }
+        else
+        {
+            reverseMonkeys.AddToSetUnderKey(monkey, valOrOp);
+        }
     }
-    var side1 = GetMonkeyVal(monkeys, "sjmn");//ngpl
-    reverseMonkeys.Add("pppw",side1.ToString()); //pvgq
-    var side2 = GetMonkeyValAdv(monkeys,reverseMonkeys, "pppw");//pvgq
 
-    return null;
+    var (side1_monkey, side2_monkey) = monkeys["root"].Deconstruct<string, string>(" + ");
+
+    var side1 = GetMonkeyVal(monkeys, side1_monkey);
+    var side2 = GetMonkeyVal(monkeys, side2_monkey);
+
+    reverseMonkeys[side1_monkey] = new HashSet<string>(){ side2.ToString() }; 
+    reverseMonkeys[side2_monkey] = new HashSet<string>(){ side1.ToString() }; 
+    var humn = GetMonkeyValAlt(reverseMonkeys, "humn", set => set.First());
+
+    return humn.ToString();
 }

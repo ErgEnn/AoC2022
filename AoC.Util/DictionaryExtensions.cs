@@ -23,5 +23,17 @@ namespace AoC.Util
                 yield return dict[key];
             }
         }
+
+        public static void AddToSetUnderKey<TKey, TVal>(this IDictionary<TKey, HashSet<TVal>> dict, TKey key, TVal value)
+        {
+            if (dict.TryGetValue(key, out var set))
+            {
+                set.Add(value);
+            }
+            else
+            {
+                dict.Add(key,new HashSet<TVal>(){value});
+            }
+        }
     }
 }

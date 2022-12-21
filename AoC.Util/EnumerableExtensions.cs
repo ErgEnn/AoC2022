@@ -127,5 +127,10 @@ namespace AoC.Util
             }
         }
 
+        public static T RandomItem<T>(this ICollection<T> items)
+        {
+            return items.Skip(Random.Shared.Next(items.Count)).First();
+        }
+
     }
 }
