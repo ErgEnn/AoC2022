@@ -115,6 +115,11 @@ namespace AoC.Util
             return int.Parse(s);
         }
 
+        public static long ToLong(this string s)
+        {
+            return long.Parse(s);
+        }
+
         public static IEnumerable<(string, string)> PairsOfLines(this IEnumerable<string> lines)
         {
             var enumerator = lines.GetEnumerator();
