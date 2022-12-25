@@ -17,8 +17,10 @@ string Solve1(string input)
     {
         var (oresPerOre,oresPerClay,oresPerObsidian,clayPerObsidian,oresPerGeode,obsidianPerGeode) = line.Deconstruct<int,int,int,int,int,int>(
             $"Blueprint \\d+: Each ore robot costs {1} ore. Each clay robot costs {2} ore. Each obsidian robot costs {3} ore and {4} clay. Each geode robot costs {5} ore and {6} obsidian.");
-        var totalOrePerGeode = oresPerGeode + obsidianPerGeode * (oresPerObsidian + clayPerObsidian * oresPerClay);
-        Console.WriteLine(totalOrePerGeode);
+        
+        var orderQueue = new Queue<int>();
+
+
     }
 
     return null;

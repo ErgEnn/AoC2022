@@ -132,5 +132,14 @@ namespace AoC.Util
             return items.Skip(Random.Shared.Next(items.Count)).First();
         }
 
+        public static string Join(this IEnumerable<char> chars, string separator)
+        {
+            return string.Join(separator, chars);
+        }
+        public static string Join(this IEnumerable<string> chars, string separator)
+        {
+            return string.Join(separator, chars);
+        }
+
     }
 }
